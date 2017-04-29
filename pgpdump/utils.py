@@ -145,3 +145,12 @@ def same_key(key_a, key_b):
         return key_b.endswith(key_a)
     else:
         return key_a.endswith(key_b)
+
+def find_between(s, first, second):
+    '''Get all characters between first and second in the string s'''
+    first_index = s.find(first)
+    if first_index >= 0:
+        second_index = s.find(second, first_index)
+        if second_index > first_index + 1:
+            return s[first_index+1 : second_index]
+    return None

@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 import hashlib
 from math import ceil, log
-import re
 
 from .utils import (PgpdumpException, get_int2, get_int4, get_mpi,
-        get_key_id, get_hex_data, get_int_bytes, pack_data)
+                    get_key_id, get_hex_data, get_int_bytes, pack_data,
+                    find_between)
 
 
 class Packet(object):
@@ -633,19 +633,21 @@ class UserIDPacket(Packet):
         self.user = None
         self.user_name = None
         self.user_email = None
+        self.user_comment = None
         super(UserIDPacket, self).__init__(*args, **kwargs)
-
-    user_re = re.compile(r'^([^<]+)? ?<([^>]*)>?')
 
     def parse(self):
         self.user = self.data.decode('utf8', 'replace')
-        matches = self.user_re.match(self.user)
-        if matches:
-            if matches.group(1):
-                self.user_name = matches.group(1).strip()
-            if matches.group(2):
-                self.user_email = matches.group(2).strip()
-
+        self.user_comment = find_between(self.user, '(', ')')
+        self.user_email = find_between(self.user, '<', '>')
+        if self.user_comment:
+            open_paren = self.user.find('(')
+            self.user_name = self.user[:open_paren].strip()
+        elif self.user_email:
+            lt = self.user.find('<')
+            self.user_name = self.user[:lt].strip()
+        else:
+            self.user_name = self.user
         return self.length
 
     def __repr__(self):

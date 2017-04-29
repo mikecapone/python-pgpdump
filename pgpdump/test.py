@@ -264,6 +264,7 @@ E/GGdt/Cn5Rr1G933H9nwxo=
             elif isinstance(packet, UserIDPacket):
                 seen += 1
                 self.assertEqual("Linus Torvalds", packet.user_name)
+                self.assertEqual(None, packet.user_comment)
                 self.assertEqual("torvalds@linux-foundation.org",
                         packet.user_email)
 
